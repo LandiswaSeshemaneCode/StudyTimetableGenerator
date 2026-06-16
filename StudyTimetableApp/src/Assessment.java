@@ -1,6 +1,7 @@
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.time.temporal.ChronoUnit;
 
 public class Assessment {
     private String assessmentName;
@@ -37,6 +38,11 @@ public class Assessment {
 
     }
 
+    public long getDaysUntilAssessment(){
+        return ChronoUnit.DAYS.between(LocalDate.now(), assessmentDate);
+        //counting number of days until the assessment
+    }
+
     public void displayStudyReccomendation(){
         ArrayList<Chapter> priorityChapters = new ArrayList<>();
         LLChapterNode curHead = testedChapterHead;
@@ -55,6 +61,7 @@ public class Assessment {
     public void displayAssessment(){
         System.out.println("Assessment: "+assessmentName);
         System.out.println("Date: "+assessmentDate);
+        System.out.println(getDaysUntilAssessment());
         System.out.println("Goal Confidence: "+goalConfidence);
         System.out.println("Module: "+module.getModuleName());
 
