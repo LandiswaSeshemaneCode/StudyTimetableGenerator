@@ -1,4 +1,6 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Assessment {
     private String assessmentName;
@@ -35,6 +37,21 @@ public class Assessment {
 
     }
 
+    public void displayStudyReccomendation(){
+        ArrayList<Chapter> priorityChapters = new ArrayList<>();
+        LLChapterNode curHead = testedChapterHead;
+        while(curHead!=null){
+            priorityChapters.add(curHead.cargo);
+            curHead = curHead.next;
+        }
+        priorityChapters.sort(Comparator.comparingDouble(Chapter::getPriorityScore).reversed());
+         //reversing so that bigger scores come first
+        System.out.println("Recommended Study Order: ");
+         for(int i = 0;i<priorityChapters.size();i++){
+            System.out.println((i+1)+ ". " +priorityChapters.get(i).getChapterName() + " | Priority Score: "+priorityChapters.get(i).getPriorityScore());
+         }
+        }
+
     public void displayAssessment(){
         System.out.println("Assessment: "+assessmentName);
         System.out.println("Date: "+assessmentDate);
@@ -45,9 +62,11 @@ public class Assessment {
         LLChapterNode current = testedChapterHead;
 
         while(current!=null){
-            System.out.println("- "+current.cargo.getChapterName() + "| Priority Score: "+current.cargo.getPriorityScore());
+            System.out.println("- "+current.cargo.getChapterName() + " | Priority Score: "+current.cargo.getPriorityScore());
             current = current.next;
         }
+
+        displayStudyReccomendation();
     }
 
 

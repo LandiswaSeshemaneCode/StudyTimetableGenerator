@@ -42,6 +42,7 @@ public class Program {
         for(int i = 0;i<numAssessments;i++){
             assessment.add(createAssessment(mod));
         }
+        System.out.println("");
 
         m.add(mod);
     }
@@ -81,6 +82,7 @@ public class Program {
 
         Assessment newAssessment =  new Assessment(aName, aDate, aGoal, mod);
         selectAssessedChapter(mod, newAssessment);
+        System.out.println("");
         return newAssessment;
     }
 
