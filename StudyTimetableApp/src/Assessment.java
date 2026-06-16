@@ -22,6 +22,14 @@ public class Assessment {
         return assessmentDate;
     }
 
+    public Module getModule(){
+        return module;
+    }
+
+    public String getAssessmentName(){
+        return assessmentName;
+    }
+
 
     public void addAssessedChapter(Chapter chapter){
         LLChapterNode addNode = new LLChapterNode(chapter);
@@ -38,18 +46,39 @@ public class Assessment {
 
     }
 
+    public ArrayList<Chapter> getAssessedChapters(){
+        LLChapterNode temporary = testedChapterHead;
+        ArrayList<Chapter> assessed = new ArrayList<>();
+
+        while(temporary!=null){
+            assessed.add(temporary.cargo);
+            temporary = temporary.next;
+        }
+
+        return assessed;
+    }
+
     public long getDaysUntilAssessment(){
         return ChronoUnit.DAYS.between(LocalDate.now(), assessmentDate);
         //counting number of days until the assessment
     }
 
-    public void displayStudyReccomendation(){
-        ArrayList<Chapter> priorityChapters = new ArrayList<>();
-        LLChapterNode curHead = testedChapterHead;
-        while(curHead!=null){
-            priorityChapters.add(curHead.cargo);
-            curHead = curHead.next;
+    public long urgencyScore(){
+        long daysLeft = getDaysUntilAssessment();
+        if(daysLeft>=30){
+            return 0;
+            //Far away not as urgent
         }
+        if(daysLeft<0){
+            return 0;
+            //The assessment date has passed
+        }
+
+        return 30-daysLeft;
+    }
+
+    public void displayStudyRecommendation(){
+        ArrayList<Chapter> priorityChapters = getAssessedChapters();
         priorityChapters.sort(Comparator.comparingDouble(Chapter::getPriorityScore).reversed());
          //reversing so that bigger scores come first
         System.out.println("Recommended Study Order: ");
@@ -61,7 +90,6 @@ public class Assessment {
     public void displayAssessment(){
         System.out.println("Assessment: "+assessmentName);
         System.out.println("Date: "+assessmentDate);
-        System.out.println(getDaysUntilAssessment());
         System.out.println("Goal Confidence: "+goalConfidence);
         System.out.println("Module: "+module.getModuleName());
 
@@ -73,7 +101,7 @@ public class Assessment {
             current = current.next;
         }
 
-        displayStudyReccomendation();
+        displayStudyRecommendation();
     }
 
 

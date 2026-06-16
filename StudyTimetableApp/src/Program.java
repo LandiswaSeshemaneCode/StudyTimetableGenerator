@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class Program {
 
@@ -18,6 +19,7 @@ public class Program {
         System.out.println("Modules saved: "+module.size());
         System.out.println("Assessments saved: "+assessment.size());
         displayAssessments();
+        displayGlobalStudyRecommendations();
         System.out.println("Thank you");
     }
 
@@ -114,6 +116,26 @@ public class Program {
         for(int i = 0;i<assessment.size();i++){
             Assessment displayA = assessment.get(i);
             displayA.displayAssessment();
+        }
+    }
+
+    public void displayGlobalStudyRecommendations(){
+        ArrayList<StudyRecommendation> studyRecs = new ArrayList<>();
+        for(int i=0;i<assessment.size();i++){
+            Assessment assessed = assessment.get(i);
+            ArrayList<Chapter> assessedChapters = assessed.getAssessedChapters();
+            for(int j = 0;j<assessedChapters.size();j++){
+                Chapter chapter = assessedChapters.get(j);
+                StudyRecommendation studyRecommendation = new StudyRecommendation(chapter,assessed);
+                studyRecs.add(studyRecommendation);
+            }   
+        }
+
+        studyRecs.sort(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
+        System.out.println("\nGlobal Study Recommendation:");
+        System.out.println("-------------------------------");
+        for(int k = 0;k<studyRecs.size();k++){
+            studyRecs.get(k).displayRecommendation(k+1);
         }
     }
 }
