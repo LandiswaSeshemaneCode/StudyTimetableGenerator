@@ -7,8 +7,8 @@ public class Module {
 
     public Module(String moduleName){
         this.moduleName = moduleName;
-        this.moduleDifficulty = getModuleDifficulty();
-        this.moduleConfidence = getModuleConfidence();
+        //this.moduleDifficulty = getModuleDifficulty();
+        //this.moduleConfidence = getModuleConfidence();
     }
 
     public String getModuleName(){
@@ -33,7 +33,7 @@ public class Module {
             return 0;
         }
 
-        return (int) Math.ceil((double)totalDifficulty/totalChapters);
+        return (int) Math.ceil((double)totalDifficulty/totalChapters); //Takes the higher rounding off of difficulty 
     }
 
     public double getModuleConfidence(){
@@ -67,6 +67,7 @@ public class Module {
             moduleChapterTail = newNode;
         }
         else{
+            newNode.prev = moduleChapterTail;
             moduleChapterTail.next = newNode;
             moduleChapterTail = newNode;
 
@@ -95,5 +96,30 @@ public class Module {
         return (double)completedChapters/totalChapters;
     }
 
+    public Chapter getChapterAt(int index){
+        LLChapterNode current = moduleChapterHead;
+        int count = 1; //Start at 1 as this is the number the user sees from the start of the list
 
+        while(current != null){
+            if(count == index){
+                return current.cargo;
+            }
+
+            current = current.next;
+            count++;
+        }
+
+        return null;
+    }
+        
+    public void displayChapters(){
+        LLChapterNode current = moduleChapterHead;
+        int count = 1;
+        while(current != null){
+            System.out.println(count + ". " + current.cargo.getChapterName());
+
+            current = current.next;
+            count++;
+        }
+    }
 }

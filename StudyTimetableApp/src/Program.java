@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDate;
 
 public class Program {
 
@@ -14,28 +15,36 @@ public class Program {
 
     public Program(){
         addModule(module);
+        System.out.println("Modules saved: "+module.size());
+        System.out.println("Assessments saved: "+assessment.size());
+        displayAssessments();
         System.out.println("Thank you");
     }
 
     public void addModule(ArrayList<Module> m){
         
         System.out.print("Enter the module name: ");
-        String mName = input.nextLine();
+        String mName = input.nextLine().toUpperCase();
         System.out.println("");
 
-        Module mod = new Module(mName.toUpperCase());
+        Module mod = new Module(mName); // Self-explanatory and for easier use later
         System.out.print("How many chapters does "+mName+" have? : ");
-        int numChapters = input.nextInt();
+        int numChapters = Integer.parseInt(input.nextLine());
 
         for(int i= 0;i<numChapters;i++){
             mod.addChapter(AddChapter());
             System.out.println("Chapter added successfully.");
         }
 
+        System.out.print("How many assessments does "+ mName+ " have: ");
+        int numAssessments = Integer.parseInt(input.nextLine());
+
+        for(int i = 0;i<numAssessments;i++){
+            assessment.add(createAssessment(mod));
+        }
+
         m.add(mod);
     }
-
-    
 
     public Chapter AddChapter(){
         
@@ -44,11 +53,11 @@ public class Program {
         System.out.println("");
 
         System.out.print("Enter the Chapter difficulty 1-(easy) to 5-(hard): ");
-        int cDifficulty = input.nextInt();
+        int cDifficulty = Integer.parseInt(input.nextLine());
         System.out.println("");
 
         System.out.print("Enter your confidence in the chapter from 0-100: ");
-        double cConfidence = input.nextDouble();
+        double cConfidence = Double.parseDouble(input.nextLine());
         System.out.println("");
         //this is basically the mark a user thinks they would get in
         // a test covering this chapter
@@ -56,4 +65,53 @@ public class Program {
         return new Chapter(cName,cDifficulty,cConfidence);
     }
 
+    public Assessment createAssessment(Module mod){
+    
+        System.out.print("Enter the assessment name: ");
+        String aName = input.nextLine();
+        System.out.println("");
+
+        System.out.print("Enter the assessment date (yyyy-mm-dd): ");
+        LocalDate aDate = LocalDate.parse(input.nextLine());
+        System.out.println("");
+
+        System.out.print("Enter you goal confidence (0-100): ");
+        double aGoal = Double.parseDouble(input.nextLine());
+        System.out.println("");
+
+        Assessment newAssessment =  new Assessment(aName, aDate, aGoal, mod);
+        selectAssessedChapter(mod, newAssessment);
+        return newAssessment;
+    }
+
+    public void selectAssessedChapter(Module mod,Assessment assessment){
+        System.out.println("Select the chapters that will be assessed: ");
+        mod.displayChapters();
+
+        System.out.print("Enter chapter number or 0 to stop: ");
+        int choice = Integer.parseInt(input.nextLine());
+        System.out.println("");
+
+        while(choice!=0){
+            Chapter selectChapter = mod.getChapterAt(choice);
+
+            if(selectChapter!= null){
+                assessment.addAssessedChapter(selectChapter);
+                System.out.println("Chapter added successfully.");
+            }
+            else{
+                System.out.println("Invalid chapter number: ");
+            }
+
+            System.out.print("Enter chapter number or 0 to stop: ");
+            choice = Integer.parseInt(input.nextLine());
+        }
+    }
+
+    public void displayAssessments(){
+        for(int i = 0;i<assessment.size();i++){
+            Assessment displayA = assessment.get(i);
+            displayA.displayAssessment();
+        }
+    }
 }

@@ -28,10 +28,26 @@ public class Assessment {
             testedChapterTail = addNode;
         }
         else{
+            addNode.prev = testedChapterTail;
             testedChapterTail.next = addNode;
             testedChapterTail = addNode;
         }
 
+    }
+
+    public void displayAssessment(){
+        System.out.println("Assessment: "+assessmentName);
+        System.out.println("Date: "+assessmentDate);
+        System.out.println("Goal Confidence: "+goalConfidence);
+        System.out.println("Module: "+module.getModuleName());
+
+        System.out.println("Tested Chapters: ");
+        LLChapterNode current = testedChapterHead;
+
+        while(current!=null){
+            System.out.println("- "+current.cargo.getChapterName());
+            current = current.next;
+        }
     }
 
 
