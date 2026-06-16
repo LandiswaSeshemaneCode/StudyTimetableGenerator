@@ -31,4 +31,9 @@ public class Chapter {
         this.chapterComplete = true;
     }
 
+    public double getPriorityScore(){
+        return (chapterDifficulty*20) + (100 - chapterConfidence);
+        
+    }
+
 }

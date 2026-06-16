@@ -45,7 +45,7 @@ public class Assessment {
         LLChapterNode current = testedChapterHead;
 
         while(current!=null){
-            System.out.println("- "+current.cargo.getChapterName());
+            System.out.println("- "+current.cargo.getChapterName() + "| Priority Score: "+current.cargo.getPriorityScore());
             current = current.next;
         }
     }
