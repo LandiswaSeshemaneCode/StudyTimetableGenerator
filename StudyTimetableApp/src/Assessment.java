@@ -74,7 +74,7 @@ public class Assessment {
             //The assessment date has passed
         }
 
-        return 30-daysLeft;
+        return (30-daysLeft)*5;
     }
 
     public void displayStudyRecommendation(){
@@ -101,7 +101,7 @@ public class Assessment {
             current = current.next;
         }
 
-        displayStudyRecommendation();
+       // displayStudyRecommendation();
     }
 
 

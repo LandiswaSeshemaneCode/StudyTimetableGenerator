@@ -132,7 +132,7 @@ public class Program {
         }
 
         studyRecs.sort(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
-        System.out.println("\nGlobal Study Recommendation:");
+        System.out.println("\nGlobal Study Recommendations:");
         System.out.println("-------------------------------");
         for(int k = 0;k<studyRecs.size();k++){
             studyRecs.get(k).displayRecommendation(k+1);
