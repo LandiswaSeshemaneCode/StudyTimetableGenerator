@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 
 public class Program {
 
@@ -120,17 +121,28 @@ public class Program {
     }
 
     public void displayGlobalStudyRecommendations(){
-        ArrayList<StudyRecommendation> studyRecs = new ArrayList<>();
+        HashMap<String,StudyRecommendation> recommendationMap = new HashMap<>();
         for(int i=0;i<assessment.size();i++){
             Assessment assessed = assessment.get(i);
             ArrayList<Chapter> assessedChapters = assessed.getAssessedChapters();
+
             for(int j = 0;j<assessedChapters.size();j++){
                 Chapter chapter = assessedChapters.get(j);
-                StudyRecommendation studyRecommendation = new StudyRecommendation(chapter,assessed);
-                studyRecs.add(studyRecommendation);
+                String chapterName = chapter.getChapterName();
+
+                if(recommendationMap.containsKey(chapterName)){
+                    StudyRecommendation existing = recommendationMap.get(chapterName);
+                    existing.AddAssessment(assessed);
+                }
+                else{
+                    StudyRecommendation newRecommendation = new StudyRecommendation(chapter);
+                    newRecommendation.AddAssessment(assessed);
+                    recommendationMap.put(chapterName,newRecommendation);
+                }
+                
             }   
         }
-
+        ArrayList<StudyRecommendation> studyRecs = new ArrayList<>(recommendationMap.values());
         studyRecs.sort(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
         System.out.println("\nGlobal Study Recommendations:");
         System.out.println("-------------------------------");
