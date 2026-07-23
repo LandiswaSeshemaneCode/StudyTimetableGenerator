@@ -15,17 +15,31 @@ public class Program {
     Scanner input = new Scanner(System.in);
 
     public Program(){
-        System.out.print("How many modules do you have? : ");
+
+        System.out.print("Load previous study plan (y/n)? : ");
+        String choice = input.nextLine();
+        
+        if(choice.equalsIgnoreCase("Y")){
+            module = StudyStorage.load();
+        }
+        else{
+            System.out.print("How many modules do you have? : ");
         int numModules = Integer.parseInt(input.nextLine());
         for(int i = 0;i<numModules;i++){
         addModule(module);
         }
+    }
         System.out.println("Modules saved: "+module.size());
-        int assessmentsSaved = mod.getAssesments().size();
-        System.out.println("Assessments saved: "+assessment.size());
+        int totalAssessments = 0;
+        for(int k =0;k<module.size();k++){
+            totalAssessments+=module.get(k).getAssessments().size();
+        }
+        System.out.println("Assessments saved: "+totalAssessments);
         displayAssessments();
         displayGlobalStudyRecommendations();
+        StudyStorage.save(module);
         System.out.println("Thank you");
+    
     }
 
     public void addModule(ArrayList<Module> m){
@@ -118,20 +132,27 @@ public class Program {
     }
 
     public void displayAssessments(){
-        for(int i = 0;i<assessment.size();i++){
-            Assessment displayA = assessment.get(i);
-            displayA.displayAssessment();
+        for(int i = 0;i<module.size();i++){
+            Module currentModule = module.get(i);
+            ArrayList<Assessment> displayA = currentModule.getAssessments();
+            for(int j = 0;j<displayA.size();j++){
+                displayA.get(j).displayAssessment();
+            }
         }
     }
 
     public void displayGlobalStudyRecommendations(){
         HashMap<String,StudyRecommendation> recommendationMap = new HashMap<>();
-        for(int i=0;i<assessment.size();i++){
-            Assessment assessed = assessment.get(i);
-            ArrayList<Chapter> assessedChapters = assessed.getAssessedChapters();
+        for(int i=0;i<module.size();i++){
+            Module currentModule = module.get(i);
+            ArrayList<Assessment> moduleAssessment = currentModule.getAssessments();
 
-            for(int j = 0;j<assessedChapters.size();j++){
-                Chapter chapter = assessedChapters.get(j);
+            for(int k = 0;k<moduleAssessment.size();k++){
+
+                Assessment assessed = moduleAssessment.get(k);
+                ArrayList<Chapter> assessChapters = assessed.getAssessedChapters();
+                for(int j=0;j<assessChapters.size();j++){
+                Chapter chapter = assessChapters.get(j);
                 String chapterName = chapter.getChapterName();
 
                 if(recommendationMap.containsKey(chapterName)){
@@ -143,7 +164,7 @@ public class Program {
                     newRecommendation.AddAssessment(assessed);
                     recommendationMap.put(chapterName,newRecommendation);
                 }
-                
+            }
             }   
         }
         ArrayList<StudyRecommendation> studyRecs = new ArrayList<>(recommendationMap.values());

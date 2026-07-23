@@ -1,4 +1,5 @@
-public class LLChapterNode {
+import java.io.Serializable;
+public class LLChapterNode implements Serializable{
     public Chapter cargo;
     public LLChapterNode next;
     public LLChapterNode prev;

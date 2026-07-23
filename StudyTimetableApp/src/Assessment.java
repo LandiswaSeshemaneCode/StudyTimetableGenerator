@@ -1,9 +1,10 @@
 import java.time.LocalDate;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.time.temporal.ChronoUnit;
 
-public class Assessment {
+public class Assessment implements Serializable{
     private String assessmentName;
     private LocalDate assessmentDate;
     private double goalConfidence;

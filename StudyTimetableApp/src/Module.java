@@ -1,5 +1,6 @@
 import java.util.ArrayList;
-public class Module {
+import java.io.Serializable;
+public class Module implements Serializable{
     String moduleName;
     int moduleDifficulty;
     double moduleConfidence;
