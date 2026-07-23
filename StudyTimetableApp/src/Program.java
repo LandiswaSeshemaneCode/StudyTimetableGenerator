@@ -11,6 +11,7 @@ public class Program {
     }
 
     ArrayList<Module> module = new ArrayList<>();
+    ArrayList<StudyRecommendation> studyRecs = new ArrayList<>();
 
     Scanner input = new Scanner(System.in);
 
@@ -37,10 +38,19 @@ public class Program {
         System.out.println("Assessments saved: "+totalAssessments);
         displayAssessments();
         displayGlobalStudyRecommendations();
-        StudySession testSession = new StudySession(module.get(0).getChapterAt(1),LocalDate.now(),2);
-        testSession.displaySession();
+        System.out.println("\n");
+        //StudySession testSession = new StudySession(module.get(0).getChapterAt(1),LocalDate.now(),2);
+         //yStudySession testSession2 = new StudySession(module.get(1).getChapterAt(1),LocalDate.now(),6);
+         //testSession.displaySession();
+        ArrayList<Availability> studyAvailability = new ArrayList<>();
         Availability testAvailabilty = new Availability("Thursday", 3);
-        testAvailabilty.displayAvailability();
+        studyAvailability.add(testAvailabilty);
+        studyAvailability.add(new Availability("Tuesday", 5));
+        //testAvailabilty.displayAvailability();
+
+        TimetableGenerator timetable = new TimetableGenerator();
+        timetable.generateTimetable(studyRecs, studyAvailability);
+        timetable.displayTimetable();
         StudyStorage.save(module);
         System.out.println("Thank you");
     
@@ -171,7 +181,7 @@ public class Program {
             }
             }   
         }
-        ArrayList<StudyRecommendation> studyRecs = new ArrayList<>(recommendationMap.values());
+        studyRecs = new ArrayList<>(recommendationMap.values());
         studyRecs.sort(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
         System.out.println("\nGlobal Study Recommendations:");
         System.out.println("-------------------------------");

@@ -31,6 +31,10 @@ public class StudyRecommendation {
         return finalScore;
     }
 
+    public Chapter getChapter(){
+        return chapter;
+    }
+
     public void displayRecommendation(int rank){
         System.out.println(rank + ". "+ chapter.getChapterName()+ " | "+assessments.get(0).getModule().getModuleName()+" | "+assessments.get(0).getAssessmentName()+" | Score: "+ finalScore);
 
