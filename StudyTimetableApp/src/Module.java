@@ -1,14 +1,15 @@
+import java.util.ArrayList;
 public class Module {
     String moduleName;
     int moduleDifficulty;
     double moduleConfidence;
     LLChapterNode moduleChapterHead;
     LLChapterNode moduleChapterTail;
+    private ArrayList<Assessment> assessments;
 
     public Module(String moduleName){
         this.moduleName = moduleName;
-        //this.moduleDifficulty = getModuleDifficulty();
-        //this.moduleConfidence = getModuleConfidence();
+        this.assessments = new ArrayList<>();
     }
 
     public String getModuleName(){
@@ -121,5 +122,13 @@ public class Module {
             current = current.next;
             count++;
         }
+    }
+
+    public void addAssessment(Assessment a){
+        assessments.add(a);
+    }
+
+    public ArrayList<Assessment> getAssessments(){
+        return assessments;
     }
 }

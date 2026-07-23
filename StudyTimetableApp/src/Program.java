@@ -11,7 +11,6 @@ public class Program {
     }
 
     ArrayList<Module> module = new ArrayList<>();
-    ArrayList<Assessment> assessment = new ArrayList<>();
 
     Scanner input = new Scanner(System.in);
 
@@ -22,6 +21,7 @@ public class Program {
         addModule(module);
         }
         System.out.println("Modules saved: "+module.size());
+        int assessmentsSaved = mod.getAssesments().size();
         System.out.println("Assessments saved: "+assessment.size());
         displayAssessments();
         displayGlobalStudyRecommendations();
@@ -47,7 +47,7 @@ public class Program {
         int numAssessments = Integer.parseInt(input.nextLine());
 
         for(int i = 0;i<numAssessments;i++){
-            assessment.add(createAssessment(mod));
+            mod.addAssessment(createAssessment(mod));
         }
         System.out.println("");
 
