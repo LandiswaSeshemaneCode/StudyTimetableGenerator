@@ -37,6 +37,8 @@ public class Program {
         System.out.println("Assessments saved: "+totalAssessments);
         displayAssessments();
         displayGlobalStudyRecommendations();
+        StudySession testSession = new StudySession(module.get(0).getChapterAt(1),LocalDate.now(),2);
+        testSession.displaySession();
         StudyStorage.save(module);
         System.out.println("Thank you");
     
@@ -176,4 +178,6 @@ public class Program {
                         System.out.println("\n");
         }
     }
+
+    
 }
