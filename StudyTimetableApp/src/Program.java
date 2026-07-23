@@ -16,7 +16,11 @@ public class Program {
     Scanner input = new Scanner(System.in);
 
     public Program(){
+        System.out.print("How many modules do you have? : ");
+        int numModules = Integer.parseInt(input.nextLine());
+        for(int i = 0;i<numModules;i++){
         addModule(module);
+        }
         System.out.println("Modules saved: "+module.size());
         System.out.println("Assessments saved: "+assessment.size());
         displayAssessments();
@@ -148,6 +152,7 @@ public class Program {
         System.out.println("-------------------------------");
         for(int k = 0;k<studyRecs.size();k++){
             studyRecs.get(k).displayRecommendation(k+1);
+                        System.out.println("\n");
         }
     }
 }
