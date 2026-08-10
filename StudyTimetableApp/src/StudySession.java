@@ -1,15 +1,18 @@
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class StudySession {
     private Chapter chapter;
     private LocalDate studyDate;
-    private double hours;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private boolean completed;
 
-    public StudySession(Chapter chapter,LocalDate studyDate,double hours){
+    public StudySession(Chapter chapter,LocalDate studyDate,LocalTime startTime,LocalTime endTime){
         this.chapter = chapter;
         this.studyDate = studyDate;
-        this.hours = hours;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.completed = false;
     }
 
@@ -17,13 +20,18 @@ public class StudySession {
         return chapter;
     }
 
-    public LocalDate getDate(){
+    protected LocalDate getDate(){
         return studyDate;
     }
 
-    public double getHours(){
-        return hours;
+    public LocalTime getStartTime(){
+        return startTime;
     }
+
+    public LocalTime getEndTime(){
+        return endTime;
+    }
+    
 
     public boolean isCompleted(){
         return completed;
@@ -36,7 +44,7 @@ public class StudySession {
     public void displaySession(){
         System.out.println("Date: "+studyDate);
         System.out.println("Chapter: "+chapter.getChapterName());
-        System.out.println("Hours: "+hours);
+        System.out.println("Time: "+startTime+" - "+endTime);
         System.out.println("Completed: "+completed);
 
     }

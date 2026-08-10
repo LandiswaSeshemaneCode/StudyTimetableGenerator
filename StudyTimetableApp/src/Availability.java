@@ -1,22 +1,36 @@
+import java.time.*;
 public class Availability {
-    private String day;
-    private double availableHours;
+    private DayOfWeek day;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
-    public Availability(String day,double availableHours){
+    public Availability(DayOfWeek day,LocalTime startTime,LocalTime endTime){
         this.day = day;
-        this.availableHours = availableHours;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
-    public String getDay(){
+    public LocalTime getStartTime(){
+        return  startTime;
+    }
+
+    public LocalTime getEndTime(){
+        return endTime;
+    }
+
+
+    public DayOfWeek getDayOfWeek(){
         return day;
     }
 
     public double getAvailableHours(){
-        return availableHours;
+        long minutes = Duration.between(startTime, endTime).toMinutes();
+        return minutes/60.0;
     }
 
     public void displayAvailability(){
-        System.out.println("Day: "+day);
-        System.out.println("Hours: "+availableHours);
+        System.out.println(day);
+        System.out.println(startTime+ "-"+endTime);
+        System.out.println("Hours available: "+getAvailableHours());
     }
 }

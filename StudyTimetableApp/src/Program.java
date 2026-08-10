@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Comparator;
 import java.util.HashMap;
 
@@ -36,6 +36,7 @@ public class Program {
             totalAssessments+=module.get(k).getAssessments().size();
         }
         System.out.println("Assessments saved: "+totalAssessments);
+        System.out.println("\n");
         displayAssessments();
         displayGlobalStudyRecommendations();
         System.out.println("\n");
@@ -43,9 +44,9 @@ public class Program {
          //yStudySession testSession2 = new StudySession(module.get(1).getChapterAt(1),LocalDate.now(),6);
          //testSession.displaySession();
         ArrayList<Availability> studyAvailability = new ArrayList<>();
-        Availability testAvailabilty = new Availability("Thursday", 3);
+        Availability testAvailabilty = new Availability(DayOfWeek.MONDAY,LocalTime.of(18,0),LocalTime.of(21,30));
         studyAvailability.add(testAvailabilty);
-        studyAvailability.add(new Availability("Tuesday", 5));
+        studyAvailability.add(new Availability(DayOfWeek.TUESDAY,LocalTime.of(16,0),LocalTime.of(19,0)));
         //testAvailabilty.displayAvailability();
 
         TimetableGenerator timetable = new TimetableGenerator();
@@ -151,6 +152,7 @@ public class Program {
             ArrayList<Assessment> displayA = currentModule.getAssessments();
             for(int j = 0;j<displayA.size();j++){
                 displayA.get(j).displayAssessment();
+                System.out.println();
             }
         }
     }

@@ -1,41 +1,62 @@
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.time.LocalTime;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 public class TimetableGenerator {
     private ArrayList<StudySession> sessions;
+    private PriorityQueue<StudyRecommendation> recommendationsQueue;
 
     public TimetableGenerator(){
-        sessions = new ArrayList<StudySession>();
+        sessions = new ArrayList<>();
+        recommendationsQueue = new PriorityQueue<>(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
     }
 
     public void generateTimetable(ArrayList<StudyRecommendation> recommendations,ArrayList<Availability> availability){
-        double totalHours = calculateTotalHours(availability);
-        double totalScore = calculateTotalScore(recommendations);
-        LocalDate studyDate = LocalDate.now();
-
-        for(int i = 0;i<recommendations.size();i++){
-            StudyRecommendation studyRecommendation = recommendations.get(i);
-            double allocatedHours = ((studyRecommendation.getFinalScore()/totalScore)*totalHours); //later round up to nearest 0.5
-            StudySession studySession = new StudySession(studyRecommendation.getChapter(), studyDate, allocatedHours);
-
-            sessions.add(studySession);
+        sessions.clear();
+        recommendationsQueue.clear();
+        for(int k = 0;k<recommendations.size();k++){
+            recommendationsQueue.add(recommendations.get(k));
+        }
+        
+        LocalDate startDate = LocalDate.now();
+        ArrayList<StudySlot> studySlots = generateAvailableSlots(availability,startDate,7);
+        for(StudySlot slot : studySlots){  
+             double slotRemaining  = slot.getDurationHours();
+             LocalTime currentStartTime = slot.getSTime();
+            while(slotRemaining>0 && !recommendationsQueue.isEmpty()){
+            StudyRecommendation recommendation = recommendationsQueue.poll();
+            double allocatedHours = Math.min(slotRemaining,recommendation.getRemainingStudyHours());
+            LocalTime endTime = currentStartTime.plusMinutes((long)(allocatedHours*60));
+            sessions.add(new StudySession(recommendation.getChapter(),slot.getSlotDate(),currentStartTime,endTime));
+            recommendation.calculateRemainingHours(allocatedHours);
+             slotRemaining-=allocatedHours;
+             currentStartTime = endTime;
+            if(recommendation.getRemainingStudyHours()>0){
+                recommendationsQueue.add(recommendation);
+                 
+            }
+           
+           
+        }
         }
 
     }
 
-    private double calculateTotalHours(ArrayList<Availability> availability){
-        double total = 0;
-        for(int i = 0;i<availability.size();i++){
-            total+=availability.get(i).getAvailableHours();
-        }
-        return total;
-    }
 
-    private double calculateTotalScore(ArrayList<StudyRecommendation> recommendation){
-        double total = 0;
-        for(int i = 0; i<recommendation.size();i++){
-            total+=recommendation.get(i).getFinalScore();
+    public ArrayList<StudySlot> generateAvailableSlots(ArrayList<Availability> availability,LocalDate startDate,int daysAhead){
+        ArrayList<StudySlot> studySlot = new ArrayList<>();
+        for(int i = 0;i<daysAhead;i++){
+            LocalDate currentDate = startDate.plusDays(i);
+            for(int j=0;j<availability.size();j++){
+            if(availability.get(j).getDayOfWeek()==currentDate.getDayOfWeek()){
+                LocalTime startTime = availability.get(j).getStartTime();
+                LocalTime endTime = availability.get(j).getEndTime();
+                studySlot.add(new StudySlot(currentDate, startTime, endTime));
+            }
         }
-        return total;
+        }
+        return studySlot;
     }
 
     public void displayTimetable(){
@@ -46,7 +67,7 @@ public class TimetableGenerator {
             StudySession studySession = sessions.get(i);
             System.out.println("Date: "+studySession.getDate());
             System.out.println("Chapter: "+studySession.getChapter().getChapterName());
-            System.out.println("Hours: "+studySession.getHours());
+            System.out.println("Time: "+studySession.getStartTime()+" - "+studySession.getEndTime());
             System.out.println("\n");
         }
     }
