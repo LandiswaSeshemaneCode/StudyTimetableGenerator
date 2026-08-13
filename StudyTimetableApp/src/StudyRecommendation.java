@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.time.LocalDate;
 public class StudyRecommendation {
     private Chapter chapter;
     private ArrayList<Assessment> assessments;
@@ -12,6 +13,10 @@ public class StudyRecommendation {
         calculateFinalScore();
         this.requiredStudyHours = determineStudyHours();
         this.remainingStudyHours = this.requiredStudyHours;
+    }
+
+    public double completedStudyHours(){
+        return (requiredStudyHours-remainingStudyHours);
     }
 
     private void calculateFinalScore(){
@@ -52,6 +57,10 @@ public class StudyRecommendation {
         return remainingStudyHours;
     }
 
+    public double getRequiredStudyHours(){
+        return requiredStudyHours;
+    }
+
     public double determineStudyHours(){
         double studyHours = 0;
         if(finalScore < 80){
@@ -76,6 +85,15 @@ public class StudyRecommendation {
         return studyHours;
       }
 
+      public LocalDate earliestDate(){
+        Assessment earliest = assessments.get(0);
+        for(Assessment assessing : assessments){
+            if(earliest.getAssessmentDate().isAfter(assessing.getAssessmentDate())){
+                earliest = assessing;
+            }
+        }
+        return earliest.getAssessmentDate();
+      }
     public void displayRecommendation(int rank){
         System.out.println(rank + ". "+ chapter.getChapterName()+ " | "+assessments.get(0).getModule().getModuleName()+" | "+assessments.get(0).getAssessmentName()+" | Score: "+ finalScore);
 

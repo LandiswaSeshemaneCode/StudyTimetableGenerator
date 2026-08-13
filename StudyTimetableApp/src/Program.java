@@ -50,8 +50,20 @@ public class Program {
         //testAvailabilty.displayAvailability();
 
         TimetableGenerator timetable = new TimetableGenerator();
-        timetable.generateTimetable(studyRecs, studyAvailability);
+        System.out.print("How many days ahead do you want a timetable for: ");
+        timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()));
         timetable.displayTimetable();
+        System.out.println("\n");
+        System.out.println("Failed Recommendations: ");
+        System.out.println("----------------------------------");
+        for(StudyRecommendation rec : timetable.getFailedRecommendations()){
+            System.out.println(rec.getChapter().getChapterName());
+            System.out.println("Required Study hours: "+rec.getRequiredStudyHours());
+            System.out.println("Hours studied: "+rec.completedStudyHours());
+            System.out.println("Earliest assessment: "+rec.earliestDate());
+            System.out.println("\n");
+
+        }
         StudyStorage.save(module);
         System.out.println("Thank you");
     
