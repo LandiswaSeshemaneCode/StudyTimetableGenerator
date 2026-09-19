@@ -17,8 +17,12 @@ public class Program {
     Scanner input = new Scanner(System.in);
 
     public Program(){
+        run();
+        
+    }
 
-        System.out.print("Load previous study plan (y/n)? : ");
+    public void run(){
+         System.out.print("Load previous study plan (y/n)? : ");
         String choice = input.nextLine();
         
         if(choice.equalsIgnoreCase("Y")){
@@ -41,7 +45,7 @@ public class Program {
         displayAssessments();
         displayGlobalStudyRecommendations();
         System.out.println("\n");
-       
+
         ArrayList<Availability> studyAvailability = ScheduleAvailability();
         TimetableGenerator timetable = new TimetableGenerator();
         System.out.print("How many days ahead do you want a timetable for: ");
@@ -60,15 +64,13 @@ public class Program {
         }
         StudyStorage.save(module);
         System.out.println("Thank you");
-    
     }
 
 public ArrayList<Availability> ScheduleAvailability(){
     ArrayList<Availability> studyAvailability = new ArrayList<>();
-    System.out.println("How many days of this week will you be available: ");
+    System.out.print("How many days of this week will you be available: ");
     int days = Integer.parseInt(input.nextLine());
     for(int i = 0;i<days;i++){
-        System.out.println("What day will you be available: ");
         System.out.println("1.Monday");
         System.out.println("2.Tuesday");
         System.out.println("3.Wednesday");
@@ -76,10 +78,11 @@ public ArrayList<Availability> ScheduleAvailability(){
         System.out.println("5.Friday");
         System.out.println("6.Saturday");
         System.out.println("7.Sunday");
+        System.out.print("What day will you be available: ");
         int choice = Integer.parseInt(input.nextLine());
        try{ 
             DayOfWeek chosenDay = DayOfWeek.of(choice);
-            System.out.println("How many study sessions can have on "+chosenDay+" : ");
+            System.out.print("How many study sessions can have on "+chosenDay+" : ");
             int slots = Integer.parseInt(input.nextLine());
             for(int j = 1;j<slots+1;j++){
             System.out.print("What time will you be available to start on "+chosenDay+" for slot "+j+" (HH:mm): ");
@@ -87,7 +90,7 @@ public ArrayList<Availability> ScheduleAvailability(){
             System.out.print("What time will your availability end (HH:mm): ");
             LocalTime endAt = LocalTime.parse(input.nextLine());
             if(!endAt.isAfter(startAt)){
-                System.out.println("Enter a time after "+startAt+" (HH:mm):");
+                System.out.print("Enter a time after "+startAt+" (HH:mm):");
                 endAt = LocalTime.parse(input.nextLine());
             }
             studyAvailability.add(new Availability(chosenDay,startAt,endAt));
@@ -97,7 +100,7 @@ public ArrayList<Availability> ScheduleAvailability(){
                 System.out.println(e.getLocalizedMessage());
                 int choose = 0;
                 while(choose < 1 || choose >7){
-                System.out.println("Enter a correct number 1-7: ");System.out.println("What day will you be available: ");
+                System.out.println("Enter a correct number 1-7: ");
                 System.out.println("1.Monday");
                 System.out.println("2.Tuesday");
                 System.out.println("3.Wednesday");
@@ -105,10 +108,11 @@ public ArrayList<Availability> ScheduleAvailability(){
                 System.out.println("5.Friday");
                 System.out.println("6.Saturday");
                 System.out.println("7.Sunday");
+                System.out.print("What day will you be available: ");
                 choose = Integer.parseInt(input.nextLine());
                 }
                 DayOfWeek chosenDay = DayOfWeek.of(choose);
-            System.out.println("How many study sessions can have on "+chosenDay+" : ");
+            System.out.print("How many study sessions can you allocate on "+chosenDay+" : ");
             int slots = Integer.parseInt(input.nextLine());
             for(int j = 1;j<slots+1;j++){
             System.out.print("What time will you be available to start on "+chosenDay+" for slot "+j+" (HH:mm): ");
@@ -116,7 +120,7 @@ public ArrayList<Availability> ScheduleAvailability(){
             System.out.print("What time will your availability end (HH:mm): ");
             LocalTime endAt = LocalTime.parse(input.nextLine());
             if(!endAt.isAfter(startAt)){
-                System.out.println("Enter a time after "+startAt+" (HH:mm):");
+                System.out.print("Enter a time after "+startAt+" (HH:mm):");
                 endAt = LocalTime.parse(input.nextLine());
             }
             studyAvailability.add(new Availability(chosenDay,startAt,endAt));
@@ -232,33 +236,8 @@ public ArrayList<Availability> ScheduleAvailability(){
     }
 
     public void displayGlobalStudyRecommendations(){
-        HashMap<String,StudyRecommendation> recommendationMap = new HashMap<>();
-        for(int i=0;i<module.size();i++){
-            Module currentModule = module.get(i);
-            ArrayList<Assessment> moduleAssessment = currentModule.getAssessments();
-
-            for(int k = 0;k<moduleAssessment.size();k++){
-
-                Assessment assessed = moduleAssessment.get(k);
-                ArrayList<Chapter> assessChapters = assessed.getAssessedChapters();
-                for(int j=0;j<assessChapters.size();j++){
-                Chapter chapter = assessChapters.get(j);
-                String key = currentModule.getModuleName()+" : "+chapter.getChapterName();
-
-                if(recommendationMap.containsKey(key)){
-                    StudyRecommendation existing = recommendationMap.get(key);
-                    existing.AddAssessment(assessed);
-                }
-                else{
-                    StudyRecommendation newRecommendation = new StudyRecommendation(chapter);
-                    newRecommendation.AddAssessment(assessed);
-                    recommendationMap.put(key,newRecommendation);
-                }
-            }
-            }   
-        }
-        studyRecs = new ArrayList<>(recommendationMap.values());
-        studyRecs.sort(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed());
+        StudyRecommendationService recommendationService = new StudyRecommendationService(module);
+        studyRecs = recommendationService.generateGlobalRecommendations();
         System.out.println("\nGlobal Study Recommendations:");
         System.out.println("-------------------------------");
         for(int k = 0;k<studyRecs.size();k++){
