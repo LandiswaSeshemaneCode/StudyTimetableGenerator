@@ -4,6 +4,7 @@ import java.time.*;
 import java.util.Comparator;
 import java.util.HashMap;
 
+
 public class Program {
 
     public static void main(String[] args){
@@ -40,15 +41,9 @@ public class Program {
         displayAssessments();
         displayGlobalStudyRecommendations();
         System.out.println("\n");
-        //StudySession testSession = new StudySession(module.get(0).getChapterAt(1),LocalDate.now(),2);
-         //yStudySession testSession2 = new StudySession(module.get(1).getChapterAt(1),LocalDate.now(),6);
-         //testSession.displaySession();
-        ArrayList<Availability> studyAvailability = new ArrayList<>();
-        Availability testAvailabilty = new Availability(DayOfWeek.MONDAY,LocalTime.of(18,0),LocalTime.of(21,30));
-        studyAvailability.add(testAvailabilty);
-        studyAvailability.add(new Availability(DayOfWeek.TUESDAY,LocalTime.of(16,0),LocalTime.of(19,0)));
-        //testAvailabilty.displayAvailability();
-
+       
+        ArrayList<Availability> studyAvailability = ScheduleAvailability();
+        
         TimetableGenerator timetable = new TimetableGenerator();
         System.out.print("How many days ahead do you want a timetable for: ");
         timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()));
@@ -68,6 +63,41 @@ public class Program {
         System.out.println("Thank you");
     
     }
+
+public ArrayList<Availability> ScheduleAvailability(){
+    ArrayList<Availability> studyAvailability = new ArrayList<>();
+    System.out.println("How many days of this week will you be available: ");
+    int days = Integer.parseInt(input.nextLine());
+    DayOfWeek day = null;
+    for(int i = 0;i<days;i++){
+        System.out.println("What day will you be available: ");
+        System.out.println("1.Monday");
+        System.out.println("2.Tuesday");
+        System.out.println("3.Wednesday");
+        System.out.println("4.Thursday");
+        System.out.println("5.Friday");
+        System.out.println("6.Saturday");
+        System.out.println("7.Sunday");
+        int choice = Integer.parseInt(input.nextLine());
+       try{ 
+            DayOfWeek chosenDay = DayOfWeek.of(choice);
+            System.out.println("How many study sessions can have on "+chosenDay+" : ");
+            int slots = Integer.parseInt(input.nextLine());
+            for(int j = 1;j<slots+1;j++){
+            System.out.print("What time will you be available to start on"+chosenDay+" for slot "+j+" (HH:mm): ");
+            LocalTime startAt = LocalTime.parse(input.nextLine());
+            System.out.print("What time will your availability end (HH:mm): ");
+            LocalTime endAt = LocalTime.parse(input.nextLine());
+            studyAvailability.add(new Availability(chosenDay,startAt,endAt));
+            }
+        }
+            catch(Exception e){
+                System.out.println(e.getLocalizedMessage());
+            } 
+        }
+        return studyAvailability;
+    }
+
 
     public void addModule(ArrayList<Module> m){
         
