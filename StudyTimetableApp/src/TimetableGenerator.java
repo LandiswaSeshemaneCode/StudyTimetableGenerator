@@ -33,7 +33,7 @@ public class TimetableGenerator {
              LocalTime currentStartTime = slot.getSTime();
             while(slotRemaining>0 && !recommendationsQueue.isEmpty()){
             StudyRecommendation recommendation = recommendationsQueue.poll();
-            if(slot.getSlotDate().isBefore(recommendation.earliestDate())){
+            if(!slot.getSlotDate().isAfter(recommendation.earliestDate())){
             double allocatedHours = Math.min(slotRemaining,recommendation.getRemainingStudyHours());
             LocalTime endTime = currentStartTime.plusMinutes((long)(allocatedHours*60));
             sessions.add(new StudySession(recommendation.getChapter(),slot.getSlotDate(),currentStartTime,endTime));
@@ -45,12 +45,14 @@ public class TimetableGenerator {
                  
             }
         }  
-         else{
-            
-            failedRecommendations.add(recommendation);
-         }  
+        
+    }
+   }
+    while(!recommendationsQueue.isEmpty()){
+        if(recommendationsQueue.peek().getRemainingStudyHours()>0){
+            failedRecommendations.add(recommendationsQueue.poll());
         }
-        }
+    }
 
     }
 

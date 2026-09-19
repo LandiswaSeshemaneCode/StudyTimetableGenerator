@@ -43,7 +43,6 @@ public class Program {
         System.out.println("\n");
        
         ArrayList<Availability> studyAvailability = ScheduleAvailability();
-        
         TimetableGenerator timetable = new TimetableGenerator();
         System.out.print("How many days ahead do you want a timetable for: ");
         timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()));
@@ -68,7 +67,6 @@ public ArrayList<Availability> ScheduleAvailability(){
     ArrayList<Availability> studyAvailability = new ArrayList<>();
     System.out.println("How many days of this week will you be available: ");
     int days = Integer.parseInt(input.nextLine());
-    DayOfWeek day = null;
     for(int i = 0;i<days;i++){
         System.out.println("What day will you be available: ");
         System.out.println("1.Monday");
@@ -84,17 +82,51 @@ public ArrayList<Availability> ScheduleAvailability(){
             System.out.println("How many study sessions can have on "+chosenDay+" : ");
             int slots = Integer.parseInt(input.nextLine());
             for(int j = 1;j<slots+1;j++){
-            System.out.print("What time will you be available to start on"+chosenDay+" for slot "+j+" (HH:mm): ");
+            System.out.print("What time will you be available to start on "+chosenDay+" for slot "+j+" (HH:mm): ");
             LocalTime startAt = LocalTime.parse(input.nextLine());
             System.out.print("What time will your availability end (HH:mm): ");
             LocalTime endAt = LocalTime.parse(input.nextLine());
+            if(!endAt.isAfter(startAt)){
+                System.out.println("Enter a time after "+startAt+" (HH:mm):");
+                endAt = LocalTime.parse(input.nextLine());
+            }
             studyAvailability.add(new Availability(chosenDay,startAt,endAt));
             }
         }
             catch(Exception e){
                 System.out.println(e.getLocalizedMessage());
+                int choose = 0;
+                while(choose < 1 || choose >7){
+                System.out.println("Enter a correct number 1-7: ");System.out.println("What day will you be available: ");
+                System.out.println("1.Monday");
+                System.out.println("2.Tuesday");
+                System.out.println("3.Wednesday");
+                System.out.println("4.Thursday");
+                System.out.println("5.Friday");
+                System.out.println("6.Saturday");
+                System.out.println("7.Sunday");
+                choose = Integer.parseInt(input.nextLine());
+                }
+                DayOfWeek chosenDay = DayOfWeek.of(choose);
+            System.out.println("How many study sessions can have on "+chosenDay+" : ");
+            int slots = Integer.parseInt(input.nextLine());
+            for(int j = 1;j<slots+1;j++){
+            System.out.print("What time will you be available to start on "+chosenDay+" for slot "+j+" (HH:mm): ");
+            LocalTime startAt = LocalTime.parse(input.nextLine());
+            System.out.print("What time will your availability end (HH:mm): ");
+            LocalTime endAt = LocalTime.parse(input.nextLine());
+            if(!endAt.isAfter(startAt)){
+                System.out.println("Enter a time after "+startAt+" (HH:mm):");
+                endAt = LocalTime.parse(input.nextLine());
+            }
+            studyAvailability.add(new Availability(chosenDay,startAt,endAt));
+            }
+
+                }
+                
+
             } 
-        }
+        
         return studyAvailability;
     }
 
