@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.*;
-import java.util.Comparator;
-import java.util.HashMap;
 
 
 public class Program {
@@ -32,7 +30,7 @@ public class Program {
             System.out.print("How many modules do you have? : ");
         int numModules = Integer.parseInt(input.nextLine());
         for(int i = 0;i<numModules;i++){
-        addModule(module);
+        addModule();
         }
     }
         System.out.println("Modules saved: "+module.size());
@@ -43,10 +41,16 @@ public class Program {
         System.out.println("Assessments saved: "+totalAssessments);
         System.out.println("\n");
         displayAssessments();
-        displayGlobalStudyRecommendations();
+        generateGlobalStudyRecommendations();
+        System.out.println("\nGlobal Study Recommendations:");
+        System.out.println("-------------------------------");
+        for(int k = 0;k<studyRecs.size();k++){
+            studyRecs.get(k).displayRecommendation(k+1);
+                        System.out.println("\n");
+        }
         System.out.println("\n");
 
-        ArrayList<Availability> studyAvailability = ScheduleAvailability();
+        ArrayList<Availability> studyAvailability = scheduleAvailability();
         TimetableGenerator timetable = new TimetableGenerator();
         System.out.print("How many days ahead do you want a timetable for: ");
         timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()));
@@ -66,7 +70,7 @@ public class Program {
         System.out.println("Thank you");
     }
 
-public ArrayList<Availability> ScheduleAvailability(){
+public ArrayList<Availability> scheduleAvailability(){
     ArrayList<Availability> studyAvailability = new ArrayList<>();
     System.out.print("How many days of this week will you be available: ");
     int days = Integer.parseInt(input.nextLine());
@@ -135,7 +139,7 @@ public ArrayList<Availability> ScheduleAvailability(){
     }
 
 
-    public void addModule(ArrayList<Module> m){
+    public void addModule(){
         
         System.out.print("Enter the module name: ");
         String mName = input.nextLine().toUpperCase();
@@ -146,7 +150,7 @@ public ArrayList<Availability> ScheduleAvailability(){
         int numChapters = Integer.parseInt(input.nextLine());
 
         for(int i= 0;i<numChapters;i++){
-            mod.addChapter(AddChapter());
+            mod.addChapter(addChapter());
             System.out.println("Chapter added successfully.");
         }
 
@@ -158,10 +162,10 @@ public ArrayList<Availability> ScheduleAvailability(){
         }
         System.out.println("");
 
-        m.add(mod);
+        module.add(mod);
     }
 
-    public Chapter AddChapter(){
+    public Chapter addChapter(){
         
         System.out.print("Enter the Chapter name: ");
         String cName = input.nextLine();
@@ -235,15 +239,9 @@ public ArrayList<Availability> ScheduleAvailability(){
         }
     }
 
-    public void displayGlobalStudyRecommendations(){
+    public void generateGlobalStudyRecommendations(){
         StudyRecommendationService recommendationService = new StudyRecommendationService(module);
         studyRecs = recommendationService.generateGlobalRecommendations();
-        System.out.println("\nGlobal Study Recommendations:");
-        System.out.println("-------------------------------");
-        for(int k = 0;k<studyRecs.size();k++){
-            studyRecs.get(k).displayRecommendation(k+1);
-                        System.out.println("\n");
-        }
     }
 
     
