@@ -20,7 +20,7 @@ public class StudySession {
         return chapter;
     }
 
-    protected LocalDate getDate(){
+    public LocalDate getDate(){
         return studyDate;
     }
 
