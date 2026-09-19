@@ -6,12 +6,14 @@ import java.util.Comparator;
 public class TimetableGenerator {
     private ArrayList<StudySession> sessions;
     private ArrayList<StudyRecommendation> failedRecommendations;
+    private ArrayList<StudyRecommendation> lateRecommendations;
     private PriorityQueue<StudyRecommendation> recommendationsQueue;
 
     public TimetableGenerator(){
         sessions = new ArrayList<>();
-        failedRecommendations = new ArrayList<>();
-        recommendationsQueue = new PriorityQueue<>(
+        failedRecommendations = new ArrayList<StudyRecommendation>();
+        lateRecommendations = new ArrayList<StudyRecommendation>();
+        recommendationsQueue = new PriorityQueue<StudyRecommendation>(
             Comparator.comparing(StudyRecommendation::earliestDate).
         thenComparing(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed()));
     }
@@ -20,6 +22,7 @@ public class TimetableGenerator {
         sessions.clear();
         recommendationsQueue.clear();
         failedRecommendations.clear();
+        lateRecommendations.clear();
         for(int k = 0;k<recommendations.size();k++){
             if(recommendations.get(k).getRemainingStudyHours()>0){
             recommendationsQueue.add(recommendations.get(k));
@@ -44,7 +47,10 @@ public class TimetableGenerator {
                 recommendationsQueue.add(recommendation);
                  
             }
-        }  
+        }
+        else{
+            lateRecommendations.add(recommendation);
+        }
         
     }
    }

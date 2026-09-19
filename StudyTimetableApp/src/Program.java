@@ -243,16 +243,16 @@ public ArrayList<Availability> ScheduleAvailability(){
                 ArrayList<Chapter> assessChapters = assessed.getAssessedChapters();
                 for(int j=0;j<assessChapters.size();j++){
                 Chapter chapter = assessChapters.get(j);
-                String chapterName = chapter.getChapterName();
+                String key = currentModule.getModuleName()+" : "+chapter.getChapterName();
 
-                if(recommendationMap.containsKey(chapterName)){
-                    StudyRecommendation existing = recommendationMap.get(chapterName);
+                if(recommendationMap.containsKey(key)){
+                    StudyRecommendation existing = recommendationMap.get(key);
                     existing.AddAssessment(assessed);
                 }
                 else{
                     StudyRecommendation newRecommendation = new StudyRecommendation(chapter);
                     newRecommendation.AddAssessment(assessed);
-                    recommendationMap.put(chapterName,newRecommendation);
+                    recommendationMap.put(key,newRecommendation);
                 }
             }
             }   
