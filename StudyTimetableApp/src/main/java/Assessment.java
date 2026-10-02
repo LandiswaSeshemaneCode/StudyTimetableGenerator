@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class Assessment implements Serializable{
     private double goalConfidence;
     private LLChapterNode testedChapterHead;
     private LLChapterNode testedChapterTail;
+    @JsonIgnore 
     private Module module;
 
     public Assessment(String assessmentName,LocalDate assessmentDate,double goalConfidence,Module module){
