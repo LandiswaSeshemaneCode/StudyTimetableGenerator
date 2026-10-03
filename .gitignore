@@ -1,0 +1,17 @@
+# Build output
+target/
+out/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Local data and crash logs
+*.dat
+hs_err_pid*.log
+java_error_in_idea*.log
+
+# OS files
+.DS_Store
+Thumbs.db
