@@ -7,7 +7,7 @@ public class DatabaseConnection{
 
     private static final String URL = "jdbc:mysql://localhost:3306/study_timetable";
 
-    private static Connection getConnection() throws SQLException{
+    public static Connection getConnection() throws SQLException{
 
         String username = System.getenv("DB_USER");
         String password = System.getenv("DB_PASSWORD");
