@@ -125,6 +125,21 @@ public class Module implements Serializable{
         }
     }
 
+    //Added method to use the chapters as arraylist instead of linkedlist in API but will change in other classes later if issues occur
+    public ArrayList<Chapter> getChapters() {
+    ArrayList<Chapter> chapters = new ArrayList<>();
+
+    LLChapterNode current = moduleChapterHead;
+
+    while (current != null) {
+        chapters.add(current.cargo);
+        current = current.next;
+    }
+
+    return chapters;
+}
+
+
     public void addAssessment(Assessment a){
         assessments.add(a);
     }
