@@ -82,6 +82,10 @@ public class TimetableGenerator {
         return failedRecommendations;
     }
 
+    public ArrayList<StudySession> getSessions() {
+    return sessions;
+}
+
     public void displayTimetable(){
         System.out.println("\nGenerated Timetable");
         System.out.println("----------------------");
