@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.io.Serializable;
 public class Module implements Serializable{
+    private long id;
     String moduleName;
     int moduleDifficulty;
     double moduleConfidence;
@@ -11,6 +12,14 @@ public class Module implements Serializable{
     public Module(String moduleName){
         this.moduleName = moduleName;
         this.assessments = new ArrayList<>();
+    }
+
+    public long getID(){
+        return id;
+    }
+
+    public void setID(long id){
+        this.id = id;
     }
 
     public String getModuleName(){

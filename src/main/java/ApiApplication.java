@@ -4,11 +4,15 @@ import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
 import java.util.ArrayList;
-
 public class ApiApplication{
 
     public static void main(String[] args){
         ArrayList<Module> modules = StudyStorage.load();
+        ModuleRepository repository = new ModuleRepository();
+
+        //Temp development student
+        //Authentication will replace this later
+        final long studentID = 1;
         StudyPlanService service = new StudyPlanService();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -26,7 +30,11 @@ public class ApiApplication{
         
             //GET: Retrieve modules
             config.routes.get("/modules", ctx ->{
-                ctx.json(modules);
+                try{
+                    ctx.json(repository.findByStudent(studentID));
+                }catch(java.sql.SQLException e){
+                    ctx.status(500).json(java.util.Map.of("error","Failed to retrieve modules"));
+                }
             });
 
             //POST: Create new module
@@ -45,15 +53,19 @@ public class ApiApplication{
                     return;
                 }
                 
-                //Using the existing bussiness logic 
+                try{
+                    long generatedID = repository.save(moduleName.trim(),studentID);
+
+                    Module newModule = new Module(moduleName.trim());
+                    newModule.setID(generatedID);
                 
-                Module newModule = service.createModule(moduleName.trim());
-
-                modules.add(newModule); //adding newly created module
-
-                StudyStorage.save(modules); //saving to storage
-
                 ctx.status(201).json(newModule); //returns the module
+                }
+                catch(java.sql.SQLException e){
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to save module")
+                    );
+                }
             });
 
             //GET: Retrieve Chapter
