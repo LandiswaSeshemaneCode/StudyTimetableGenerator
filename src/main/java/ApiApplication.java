@@ -9,7 +9,7 @@ public class ApiApplication{
     public static void main(String[] args){
         ArrayList<Module> modules = StudyStorage.load();
         ModuleRepository repository = new ModuleRepository();
-
+        ChapterRepository chapterRepository = new ChapterRepository();
         //Temp development student
         //Authentication will replace this later
         final long studentID = 1;
@@ -33,6 +33,7 @@ public class ApiApplication{
                 try{
                     ctx.json(repository.findByStudent(studentID));
                 }catch(java.sql.SQLException e){
+                    e.printStackTrace();
                     ctx.status(500).json(java.util.Map.of("error","Failed to retrieve modules"));
                 }
             });
@@ -71,10 +72,10 @@ public class ApiApplication{
             //GET: Retrieve Chapter
             config.routes.get("/modules/{id}/chapters",ctx->{
 
-                int moduleID;
+                long moduleID;
 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
                 }catch(NumberFormatException e){
                     ctx.status(400).json(
                         java.util.Map.of("error","Invalid module ID")
@@ -82,25 +83,43 @@ public class ApiApplication{
                     return;
                 }
 
-                if(moduleID < 0 || moduleID >= modules.size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Module not found")
+                if(moduleID <= 0){
+                    ctx.status(400).json(
+                        java.util.Map.of("error","Invalid module ID")
                     );
-                    return;
+                   return;
+
                 }
 
-                Module module = modules.get(moduleID);
+                try{
+                    Module module = repository.findByID(moduleID, studentID);
+                    
+                    if(module == null){
+                        ctx.status(404).json(
+                            java.util.Map.of("error","Module not found")
+                        );
+                        return;
 
-                ctx.json(module.getChapters()); //used the arraylist here not the linkedlist of chapters
+                    }
+                   ctx.json(chapterRepository.findByModule(moduleID));
+
+                }catch(java.sql.SQLException e){
+                    e.printStackTrace();
+
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to retrieve chapters")
+                    );
+                }
+
             });
 
             //POST:Create chapter
 
             config.routes.post("/modules/{id}/chapters",ctx ->{
-                int moduleID;
+                long moduleID;
 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
                 }catch(NumberFormatException e){
                     ctx.status(400).json(
                         java.util.Map.of("error","Invalid module ID")
@@ -108,9 +127,9 @@ public class ApiApplication{
                     return;
                 }
 
-                if(moduleID < 0 || moduleID >= modules.size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Module not found")
+                if(moduleID <= 0){
+                    ctx.status(400).json(
+                        java.util.Map.of("error","Invalid module ID")
                     );
                     return;
                 }
@@ -118,8 +137,8 @@ public class ApiApplication{
                 CreateChapterRequest request = ctx.bodyAsClass(CreateChapterRequest.class);
 
                 if(request.chapterName() == null || request.chapterName().isBlank()
-                || request.chapterDifficulty() > 5 || request.chapterDifficulty() < 1
-                || !Double.isFinite(request.chapterConfidence())
+                || request.chapterName().trim().length() > 150 || request.chapterDifficulty() < 1
+                ||request.chapterDifficulty() > 5|| !Double.isFinite(request.chapterConfidence())
                 || request.chapterConfidence()<0 || request.chapterConfidence() > 100){
 
                     ctx.status(400).json(
@@ -129,16 +148,33 @@ public class ApiApplication{
                     return;
                 }
 
-                Module module = modules.get(moduleID);
+                try{
+                    Module module = repository.findByID(moduleID, studentID);
+                    
+                    if(module == null){
+                        ctx.status(404).json(
+                            java.util.Map.of("error","Module not found")
+                        );
+                     return;
 
-                Chapter chapter = service.createChapter(request.chapterName().trim(),request.chapterDifficulty(),
-                 request.chapterConfidence());
+                    }
 
-                 service.addChapter(module,chapter);
+                    String chapterName = request.chapterName().trim();
 
-                 StudyStorage.save(modules);
+                    long chapterID = chapterRepository.save(moduleID, chapterName, request.chapterDifficulty(),request.chapterConfidence());
+                    
+                    Chapter chapter = new Chapter(chapterName, request.chapterDifficulty(),request.chapterConfidence());
+                    
+                    chapter.setID(chapterID);
 
-                 ctx.status(201).json(chapter);
+                    ctx.status(201).json(chapter);
+                }catch(java.sql.SQLException e){
+                    e.printStackTrace();
+
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to save chapter")
+                    );
+                }
 
             });
 

@@ -19,7 +19,7 @@
 -- Table structure for table `assessment_chapters`
 --
 
-DROP TABLE IF EXISTS `assessment_chapters`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `assessment_chapters` (
@@ -36,7 +36,7 @@ CREATE TABLE `assessment_chapters` (
 -- Table structure for table `assessments`
 --
 
-DROP TABLE IF EXISTS `assessments`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `assessments` (
@@ -56,7 +56,7 @@ CREATE TABLE `assessments` (
 -- Table structure for table `chapters`
 --
 
-DROP TABLE IF EXISTS `chapters`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `chapters` (
@@ -78,7 +78,7 @@ CREATE TABLE `chapters` (
 -- Table structure for table `modules`
 --
 
-DROP TABLE IF EXISTS `modules`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modules` (
@@ -95,7 +95,7 @@ CREATE TABLE `modules` (
 -- Table structure for table `students`
 --
 
-DROP TABLE IF EXISTS `students`;
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `students` (

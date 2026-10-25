@@ -1,5 +1,6 @@
 import java.io.Serializable;
 public class Chapter implements Serializable{
+    private long id;
     String chapterName;
     boolean chapterComplete;
     int chapterDifficulty;
@@ -14,6 +15,14 @@ public class Chapter implements Serializable{
 
     public String getChapterName(){
         return chapterName;
+    }
+
+    public long getID(){
+        return id;
+    }
+
+    public void setID(long id){
+        this.id = id;
     }
 
     public boolean isChapterComplete() {
