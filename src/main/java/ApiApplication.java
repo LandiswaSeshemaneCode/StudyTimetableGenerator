@@ -10,6 +10,7 @@ public class ApiApplication{
         ArrayList<Module> modules = StudyStorage.load();
         ModuleRepository repository = new ModuleRepository();
         ChapterRepository chapterRepository = new ChapterRepository();
+        AssessmentRepository assessmentRepository = new AssessmentRepository();
         //Temp development student
         //Authentication will replace this later
         final long studentID = 1;
@@ -182,10 +183,16 @@ public class ApiApplication{
 
             config.routes.get("/modules/{id}/assessments", ctx->{
                 
-                int moduleID;
+                long moduleID;
                 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
+                    if(moduleID <= 0 ){
+                        ctx.status(400).json(
+                        java.util.Map.of("error","Invalid module ID")
+                    );
+                    return;
+                    }
                 }catch(NumberFormatException e){
                     ctx.status(400).json(
                         java.util.Map.of("error","Invalid module ID")
@@ -193,34 +200,40 @@ public class ApiApplication{
                     return;
                 }
 
-                if(moduleID < 0 || moduleID >= modules.size()){
+                try{
+                    Module module = repository.findByID(moduleID,studentID);
+                    if(module ==null){
                     ctx.status(404).json(
                         java.util.Map.of("error","Module not found")
                     );
                     return;
                 }
 
-                Module module = modules.get(moduleID);
-                ctx.json(module.getAssessments());
+                ctx.json(assessmentRepository.findByModule(moduleID, module));
+                }catch(java.sql.SQLException e){
+                    e.printStackTrace();
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to retrieve assessments.")
+                    );
+                }
 
             });
 
             //POST: Create Assessment
             config.routes.post("/modules/{id}/assessments",ctx->{
-                 int moduleID;
+                 long moduleID;
                 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
-                }catch(NumberFormatException e){
-                    ctx.status(400).json(
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
+                    if(moduleID<=0){
+                        ctx.status(400).json(
                         java.util.Map.of("error","Invalid module ID")
                     );
                     return;
-                }
-
-                if(moduleID < 0 || moduleID >= modules.size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Module not found")
+                    }
+                }catch(NumberFormatException e){
+                    ctx.status(400).json(
+                        java.util.Map.of("error","Invalid module ID")
                     );
                     return;
                 }
@@ -228,7 +241,8 @@ public class ApiApplication{
                 CreateAssessmentRequest request = ctx.bodyAsClass(CreateAssessmentRequest.class);
 
                 if(request.assessmentName() == null || request.assessmentName().isBlank()
-                    || request.assessmentDate() == null || !Double.isFinite(request.goalConfidence())
+                    || request.assessmentName().trim().length()>150||request.assessmentDate() == null 
+                    || !Double.isFinite(request.goalConfidence())
                     || request.goalConfidence() < 0 || request.goalConfidence()>100){
 
                         ctx.status(400).json(
@@ -238,14 +252,31 @@ public class ApiApplication{
                         return;
                     }
 
-                    Module module = modules.get(moduleID);
-                    Assessment assessment = service.createAssessment(request.assessmentName().trim(),
-                     request.assessmentDate(), request.goalConfidence(), module);
+                    try{
+                        Module module = repository.findByID(moduleID,studentID);
+                        if(module==null){
+                            ctx.status(500).json(
+                                java.util.Map.of("error","Module not found.")
+                            );
+                            return;
+                        }
 
-                     module.addAssessment(assessment);
-                     StudyStorage.save(modules);
+                        String assessmentName = request.assessmentName().trim();
 
-                     ctx.status(201).json(assessment);
+                        long assessmentID = assessmentRepository.save(moduleID,assessmentName,
+                            request.assessmentDate(),request.goalConfidence());
+
+                        Assessment assessment = new Assessment(assessmentName,request.assessmentDate(),
+                        request.goalConfidence(), module);
+
+                        assessment.setID(assessmentID);
+                        ctx.status(201).json(assessment);
+                    }catch(java.sql.SQLException e){
+                        e.printStackTrace();
+                        ctx.status(500).json(
+                            java.util.Map.of("error","Failed to save assessment")
+                        );
+                    }
             });
             
             //GET: Retreive assessed chapters

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.time.temporal.ChronoUnit;
 
 public class Assessment implements Serializable{
+    private long id;
     private String assessmentName;
     private LocalDate assessmentDate;
     private double goalConfidence;
@@ -31,6 +32,14 @@ public class Assessment implements Serializable{
 
     public String getAssessmentName(){
         return assessmentName;
+    }
+
+    public long getID(){
+        return id;
+    }
+
+    public void setID(long id){
+        this.id = id;
     }
 
 
