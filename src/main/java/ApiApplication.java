@@ -11,6 +11,7 @@ public class ApiApplication{
         ModuleRepository repository = new ModuleRepository();
         ChapterRepository chapterRepository = new ChapterRepository();
         AssessmentRepository assessmentRepository = new AssessmentRepository();
+        AssessedChapterRepository assessedChapterRepository = new AssessedChapterRepository();
         //Temp development student
         //Authentication will replace this later
         final long studentID = 1;
@@ -255,7 +256,7 @@ public class ApiApplication{
                     try{
                         Module module = repository.findByID(moduleID,studentID);
                         if(module==null){
-                            ctx.status(500).json(
+                            ctx.status(404).json(
                                 java.util.Map.of("error","Module not found.")
                             );
                             return;
@@ -281,11 +282,18 @@ public class ApiApplication{
             
             //GET: Retreive assessed chapters
             config.routes.get("/modules/{id}/assessments/{assessmentID}/chapters",ctx->{
-                int moduleID,assessmentID;
+                long moduleID,assessmentID;
 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
-                    assessmentID = Integer.parseInt(ctx.pathParam("assessmentID"));
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
+                    assessmentID = Long.parseLong(ctx.pathParam("assessmentID"));
+
+                    if(moduleID <= 0 || assessmentID<=0){
+                         ctx.status(400).json(
+                    java.util.Map.of("error","Invalid ID")
+                    );
+                    return;
+                    }
                 }catch(NumberFormatException e){
                     ctx.status(400).json(
                     java.util.Map.of("error","Invalid ID")
@@ -293,79 +301,115 @@ public class ApiApplication{
                     return;
                 }
 
-                 if(moduleID < 0 || moduleID >= modules.size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Module not found")
+
+                try{
+                    Module module = repository.findByID(moduleID, studentID);
+
+                    if(module == null){
+                        ctx.status(404).json(
+                            java.util.Map.of("error","Module not found")
+                        );
+                        return;
+                    }
+
+                    Assessment assessment = assessmentRepository.findByID(assessmentID, moduleID, module);
+
+                    if(assessment == null){
+                        ctx.status(404).json(
+                            java.util.Map.of("error","Assessment not found")
+                        );
+                        return;
+                    }
+
+                    ctx.json(assessedChapterRepository.findByAssessment(assessmentID));
+                }catch(java.sql.SQLException e){
+                    e.printStackTrace();
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to retrieve assessed chapters")
                     );
-                    return;
                 }
-
-                Module module = modules.get(moduleID);
-
-                if(assessmentID<0 || assessmentID >= module.getAssessments().size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Assessment not found")
-                    );
-                    return;
-                }
-
-                Assessment assessment = module.getAssessments().get(assessmentID);
-
-                ctx.json(assessment.getAssessedChapters());
+               
             });
 
             //POST: Add assessed chapters 
             config.routes.post("/modules/{id}/assessments/{assessmentID}/chapters",ctx->{
-                 int moduleID,assessmentID;
+                 long moduleID,assessmentID;
 
                 try{
-                    moduleID = Integer.parseInt(ctx.pathParam("id"));
-                    assessmentID = Integer.parseInt(ctx.pathParam("assessmentID"));
-                }catch(NumberFormatException e){
-                    ctx.status(400).json(
+                    moduleID = Long.parseLong(ctx.pathParam("id"));
+                    assessmentID = Long.parseLong(ctx.pathParam("assessmentID"));
+
+                    if(moduleID <= 0 || assessmentID<=0){
+                         ctx.status(400).json(
                     java.util.Map.of("error","Invalid ID")
                     );
                     return;
-                }
-
-                 if(moduleID < 0 || moduleID >= modules.size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Module not found")
-                    );
-                    return;
-                }
-
-                Module module = modules.get(moduleID);
-
-                if(assessmentID<0 || assessmentID >= module.getAssessments().size()){
-                    ctx.status(404).json(
-                        java.util.Map.of("error","Assessment not found")
+                    }
+                }catch(NumberFormatException e){
+                    ctx.status(400).json(
+                    java.util.Map.of("error","Invalid ID")
                     );
                     return;
                 }
 
                 AddAssessedChapter request = ctx.bodyAsClass(AddAssessedChapter.class);
-                Chapter chapter = module.getChapterAt(request.chapterID());
 
-                if(chapter == null){
+                long chapterID = request.chapterID();
+                if(chapterID<=0){
+                      ctx.status(400).json(
+                        java.util.Map.of("error","Invalid chapter ID.")
+                    );
+                    return;
+                }
+
+              try{
+                Module module = repository.findByID(moduleID,studentID);
+
+                if(module==null){
                     ctx.status(404).json(
-                        java.util.Map.of("error","Chapter not found")
+                        java.util.Map.of("error","Module not found")
                     );
                     return;
                 }
 
-                Assessment assessment = module.getAssessments().get(assessmentID);
+                Assessment assessment = assessmentRepository.findByID(assessmentID,moduleID,module);
 
-                if(assessment.getAssessedChapters().contains(chapter)){
-                    ctx.status(409).json(
-                        java.util.Map.of("error","Chapter already assigned")
+                if(assessment == null){
+                    ctx.status(404).json(
+                        java.util.Map.of("error","Assessment not found")
                     );
                     return;
                 }
 
-                service.addAssessedChapter(chapter, assessment);
-                StudyStorage.save(modules);
-                ctx.status(200).json(assessment);
+                boolean saved = assessedChapterRepository.save(assessmentID,chapterID);
+
+                if(!saved){
+                     ctx.status(404).json(
+                        java.util.Map.of("error","Chapter not found in this module.")
+                    );
+                    return;
+                }
+
+                ctx.status(201).json(
+                    java.util.Map.of(
+                        "message","Chapter linked successfully",
+                        "assessmentID",assessmentID,
+                        "chapterID",chapterID
+                    )
+                );
+              }catch(java.sql.SQLIntegrityConstraintViolationException e){
+                e.printStackTrace();
+                ctx.status(409).json(
+                    java.util.Map.of(
+                        "error","Chapter already linked to assessment."
+                    )
+                );
+              }catch(java.sql.SQLException e){
+                 ctx.status(500).json(
+                        java.util.Map.of("error","Failed to link chapter")
+                    );
+              }
+
             });
 
             //POST:Generate timetable
