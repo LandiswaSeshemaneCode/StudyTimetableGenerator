@@ -1,0 +1,119 @@
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  color: #365dc9;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin: 8px 0;
+  font-size: 2.5rem;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.page-header > p:last-child {
+  color: #58677d;
+  line-height: 1.6;
+}
+
+.panel,
+.module-card {
+  background: white;
+  border: 1px solid #dfe5ef;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.panel {
+  margin-bottom: 32px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #bdc8d9;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  color: white;
+  background: #365dc9;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #2949a3;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.module-label {
+  color: #58677d;
+  font-size: 0.85rem;
+}
+
+.module-card h3 {
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  color: #a32323;
+  line-height: 1.5;
+}
+
+.empty-state {
+  color: #58677d;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 28px 16px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
