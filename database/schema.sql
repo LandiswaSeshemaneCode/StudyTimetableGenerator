@@ -116,4 +116,28 @@ CREATE TABLE `students` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+
+-- Table structure for study_sessions
+
+CREATE TABLE study_sessions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    chapter_id BIGINT NOT NULL,
+    study_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
+
+    FOREIGN KEY (student_id)
+        REFERENCES students(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (chapter_id)
+        REFERENCES chapters(id)
+        ON DELETE CASCADE,
+
+    CHECK (start_time < end_time)
+);
+
+
 -- Dump completed on 2026-10-24 21:59:08

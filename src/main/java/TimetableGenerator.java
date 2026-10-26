@@ -18,7 +18,11 @@ public class TimetableGenerator {
         thenComparing(Comparator.comparingDouble(StudyRecommendation::getFinalScore).reversed()));
     }
 
-    public void generateTimetable(ArrayList<StudyRecommendation> recommendations,ArrayList<Availability> availability,int daysAhead){
+    public void generateTimetable(
+    ArrayList<StudyRecommendation> recommendations,
+    ArrayList<Availability> availability,
+    int daysAhead,
+    ArrayList<StudySession> completedSessions){
         sessions.clear();
         recommendationsQueue.clear();
         failedRecommendations.clear();
@@ -30,7 +34,13 @@ public class TimetableGenerator {
         }
         
         LocalDate startDate = LocalDate.now();
-        ArrayList<StudySlot> studySlots = generateAvailableSlots(availability,startDate,daysAhead);
+        ArrayList<StudySlot> studySlots =
+        generateAvailableSlots(
+                availability,
+                startDate,
+                daysAhead,
+                completedSessions
+        );
         for(StudySlot slot : studySlots){  
              double slotRemaining  = slot.getDurationHours();
              LocalTime currentStartTime = slot.getSTime();
@@ -62,29 +72,111 @@ public class TimetableGenerator {
 
     }
 
+    //here 
+    
+public ArrayList<StudySlot> generateAvailableSlots(
+        ArrayList<Availability> availability,
+        LocalDate startDate,
+        int daysAhead,
+        ArrayList<StudySession> completedSessions) {
 
-    public ArrayList<StudySlot> generateAvailableSlots(ArrayList<Availability> availability,LocalDate startDate,int daysAhead){
-        ArrayList<StudySlot> studySlot = new ArrayList<>();
-        for(int i = 0;i<daysAhead;i++){
-            LocalDate currentDate = startDate.plusDays(i);
-            for(int j=0;j<availability.size();j++){
-            if(availability.get(j).getDayOfWeek()==currentDate.getDayOfWeek()){
-                LocalTime startTime = availability.get(j).getStartTime();
-                LocalTime endTime = availability.get(j).getEndTime();
-                studySlot.add(new StudySlot(currentDate, startTime, endTime));
+    ArrayList<StudySlot> availableSlots = new ArrayList<>();
+
+    for (int i = 0; i < daysAhead; i++) {
+        LocalDate currentDate = startDate.plusDays(i);
+
+        for (Availability entry : availability) {
+
+            if (entry.getDayOfWeek() != currentDate.getDayOfWeek()) {
+                continue;
             }
+
+            ArrayList<StudySlot> remainingSlots = new ArrayList<>();
+
+            remainingSlots.add(new StudySlot(
+                    currentDate,
+                    entry.getStartTime(),
+                    entry.getEndTime()
+            ));
+
+            for (StudySession completed : completedSessions) {
+
+                if (!completed.isCompleted()
+                        || !completed.getDate().equals(currentDate)) {
+                    continue;
+                }
+
+                ArrayList<StudySlot> updatedSlots = new ArrayList<>();
+
+                for (StudySlot slot : remainingSlots) {
+                    updatedSlots.addAll(
+                            subtractCompletedSession(slot, completed)
+                    );
+                }
+
+                remainingSlots = updatedSlots;
+            }
+
+            availableSlots.addAll(remainingSlots);
         }
-        }
-        return studySlot;
     }
 
-    public ArrayList<StudyRecommendation> getFailedRecommendations(){
-        return failedRecommendations;
-    }
+    availableSlots.sort(
+            Comparator.comparing(StudySlot::getSlotDate)
+                    .thenComparing(StudySlot::getSTime)
+    );
 
-    public ArrayList<StudySession> getSessions() {
-    return sessions;
+    return availableSlots;
 }
+
+            private ArrayList<StudySlot> subtractCompletedSession(
+                    StudySlot slot,
+                    StudySession completed) {
+
+                ArrayList<StudySlot> result = new ArrayList<>();
+
+                LocalTime slotStart = slot.getSTime();
+                LocalTime slotEnd = slot.getETime();
+
+                LocalTime completedStart = completed.getStartTime();
+                LocalTime completedEnd = completed.getEndTime();
+
+                // No overlap: retain the original slot.
+                if (!slotStart.isBefore(completedEnd)
+                        || !completedStart.isBefore(slotEnd)) {
+                    result.add(slot);
+                    return result;
+                }
+
+                // Available time before the completed session.
+                if (slotStart.isBefore(completedStart)) {
+                    result.add(new StudySlot(
+                            slot.getSlotDate(),
+                            slotStart,
+                            completedStart
+                    ));
+                }
+
+                // Available time after the completed session.
+                if (completedEnd.isBefore(slotEnd)) {
+                    result.add(new StudySlot(
+                            slot.getSlotDate(),
+                            completedEnd,
+                            slotEnd
+                    ));
+                }
+
+                return result;
+            }
+
+
+                public ArrayList<StudyRecommendation> getFailedRecommendations(){
+                    return failedRecommendations;
+                }
+
+                public ArrayList<StudySession> getSessions() {
+                return sessions;
+            }
 
     public void displayTimetable(){
         System.out.println("\nGenerated Timetable");

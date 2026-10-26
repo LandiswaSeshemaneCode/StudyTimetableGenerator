@@ -7,6 +7,9 @@ public class StudySession {
     private LocalTime startTime;
     private LocalTime endTime;
     private boolean completed;
+    private long id;
+
+
 
     public StudySession(Chapter chapter,LocalDate studyDate,LocalTime startTime,LocalTime endTime){
         this.chapter = chapter;
@@ -14,6 +17,14 @@ public class StudySession {
         this.startTime = startTime;
         this.endTime = endTime;
         this.completed = false;
+    }
+
+    public long getID() {
+        return id;
+    }
+
+    public void setID(long id) {
+        this.id = id;
     }
 
     public Chapter getChapter(){

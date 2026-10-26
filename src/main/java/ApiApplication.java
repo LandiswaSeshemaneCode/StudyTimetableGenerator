@@ -2,16 +2,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
+import java.sql.*;
+import java.util.Map;
 
 import java.util.ArrayList;
 public class ApiApplication{
 
     public static void main(String[] args){
-        ArrayList<Module> modules = StudyStorage.load();
         ModuleRepository repository = new ModuleRepository();
         ChapterRepository chapterRepository = new ChapterRepository();
         AssessmentRepository assessmentRepository = new AssessmentRepository();
         AssessedChapterRepository assessedChapterRepository = new AssessedChapterRepository();
+        StudyPlanRepository studyPlanRepository = new StudyPlanRepository();
+        StudySessionRepository studySessionRepository = new StudySessionRepository();
+
         //Temp development student
         //Authentication will replace this later
         final long studentID = 1;
@@ -412,6 +416,22 @@ public class ApiApplication{
 
             });
 
+            //GET: Retrieve saved timetable
+            config.routes.get("/timetable",ctx->{
+
+                try{
+                    ArrayList<StudySession> sessions = studySessionRepository.findByStudent(studentID);
+                    ctx.json(sessions);
+                }
+                catch(java.sql.SQLException e){
+                    e.printStackTrace();
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to retrieve timetable")
+                    );
+                }
+
+            });
+
             //POST:Generate timetable
             config.routes.post("/timetable/generate", ctx->{
 
@@ -440,14 +460,46 @@ public class ApiApplication{
                       availability.add(new Availability(slot.day(),slot.startTime(),slot.endTime()));
                     }
 
+                   try{
+                    ArrayList<Module> modules = studyPlanRepository.loadStudyPlan(studentID);
+
                     StudyRecommendationService recommendationService = new StudyRecommendationService(modules);
                     ArrayList<StudyRecommendation> recommendations = recommendationService.generateGlobalRecommendations();
 
                     TimetableGenerator generator = new TimetableGenerator();
 
-                    generator.generateTimetable(recommendations, availability, request.daysAhead());
+                    
+                    ArrayList<StudySession> savedSessions =
+                            studySessionRepository.findByStudent(studentID);
+
+                    ArrayList<StudySession> completedSessions = new ArrayList<>();
+
+                    for (StudySession session : savedSessions) {
+                        if (session.isCompleted()) {
+                            completedSessions.add(session);
+                        }
+                    }
+
+                    generator.generateTimetable(
+                            recommendations,
+                            availability,
+                            request.daysAhead(),
+                            completedSessions
+                    );
+
+                    studySessionRepository.saveTimetable(
+                            studentID,
+                            generator.getSessions()
+                    );
+
                     ctx.json(generator.getSessions());
 
+                   }catch(java.sql.SQLException e){
+                    e.printStackTrace();
+                    ctx.status(500).json(
+                        java.util.Map.of("error","Failed to generate timetable")
+                    );
+                   }
            
                 });
 
@@ -468,6 +520,54 @@ public class ApiApplication{
                         
                     );
                     });
+
+                //PATCH: Mark sessions complete
+                config.routes.patch("timetable/sessions/{id}/complete",ctx->{
+
+                    long sessionID;
+
+                    try{
+                        sessionID = Long.parseLong(ctx.pathParam("id"));
+
+                        if(sessionID<=0){
+                            ctx.status(400).json(
+                                java.util.Map.of("error","Invalid session ID.")
+                            );
+                            return;
+                        }
+                    }
+                    catch(NumberFormatException e){
+                        ctx.status(400).json(
+                            java.util.Map.of("error","Invalid session ID")
+                        );
+                        return;
+                    }
+
+                    try{
+                        boolean updated = studySessionRepository.markCompleted(sessionID, studentID);
+
+                        if(!updated){
+                           ctx.status(404).json(
+                            java.util.Map.of("error","Incomplete session not found.")
+                            );
+                            return; 
+                        }
+
+                        ctx.json(
+                            java.util.Map.of("message","Study session completed",
+                                "sessionID",sessionID
+                            )
+                        );
+                    }catch(SQLException e){
+                        e.printStackTrace();
+
+                        ctx.status(500).json(
+                            java.util.Map.of("error","Failed to update study session.")
+                        );
+                        return;
+                    }
+
+                });
             });
 
 

@@ -54,7 +54,7 @@ public class Program {
         ArrayList<Availability> studyAvailability = scheduleAvailability();
         TimetableGenerator timetable = new TimetableGenerator();
         System.out.print("How many days ahead do you want a timetable for: ");
-        timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()));
+        timetable.generateTimetable(studyRecs, studyAvailability,Integer.parseInt(input.nextLine()),new ArrayList<StudySession>());
         timetable.displayTimetable();
         System.out.println("\n");
         System.out.println("Failed Recommendations: ");
